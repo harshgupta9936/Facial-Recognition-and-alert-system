@@ -1,122 +1,206 @@
-🔹 Project Title
+# 🚀 Real-Time Face Recognition & Intruder Alert System (ReID Enabled)
 
-Real-Time Face Recognition with Intruder Alert System (ReID Enabled)
+A robust **real-time face recognition and surveillance system** with intelligent intruder detection, Re-Identification (ReID), and automated email alerts with visual evidence.
 
-🔹 Overview
+Designed to run efficiently on **CPU-based systems**, making it practical for real-world deployment without requiring high-end GPUs.
 
-This project implements a real-time face recognition and surveillance system with:
+---
 
-Known face recognition (via pre-encoded embeddings)
-Unknown person tracking using Re-Identification (ReID)
-Intruder detection based on temporal persistence
-Automatic email alerts with image + video evidence
-Identity smoothing and tracking for stability
+## 📌 Features
 
-The system is optimized for CPU environments and works efficiently on mid-range hardware like GTX 1650 Max-Q.
+### 👤 Face Recognition
 
-🔹 Key Features
-✅ Face Recognition
-Uses InsightFace (buffalo_l model) for embeddings
-Cosine similarity-based matching
-Configurable similarity threshold
-🔁 Re-Identification (ReID)
-Tracks unknown individuals across frames
-Assigns persistent IDs like unknown_0, unknown_1
-Merges similar identities dynamically
-🎯 Tracking System
-IOU-based tracking for consistent identity assignment
-Temporal smoothing using sliding window
-Prevents flickering identities
-🚨 Intruder Detection Logic
-Triggers alert when:
-Person is unknown
-Visible for more than threshold time
-Cooldown mechanism prevents spam alerts
-📸 Evidence Capture
-Saves:
-Annotated image
-5-second annotated video clip
-📧 Async Email Alerts
-Sends alerts without blocking main thread
-Supports multiple attachments (image + video)
+* Uses **InsightFace (buffalo_l model)** for high-quality embeddings
+* Cosine similarity-based matching
+* Configurable recognition threshold
 
+### 🔁 Re-Identification (ReID)
 
-🔹 Project Structure
+* Tracks unknown individuals across frames
+* Assigns persistent identities (`unknown_0`, `unknown_1`, etc.)
+* Dynamically merges similar identities to reduce duplicates
+
+### 🎯 Smart Tracking System
+
+* IOU-based tracking for consistent identity assignment
+* Temporal smoothing to avoid flickering predictions
+* Stable identity labeling in real-time video
+
+### 🚨 Intruder Detection
+
+* Detects unknown individuals based on **time persistence**
+* Avoids false positives using threshold logic
+* Cooldown mechanism prevents alert spamming
+
+### 📸 Evidence Collection
+
+* Captures:
+
+  * Annotated image
+  * 5-second annotated video clip
+
+### 📧 Asynchronous Email Alerts
+
+* Sends alerts without blocking the main pipeline
+* Supports multiple attachments (image + video)
+* Uses secure SMTP (Gmail App Password)
+
+---
+
+## 🏗️ Project Structure
+
+```
 .
 ├── dataset/                # Known faces (organized by person name)
-├── intruders/              # Saved alerts (images + videos)
-├── encodings.pkl           # Precomputed face embeddings
+├── intruders/              # Saved intruder alerts
+├── encodings.pkl           # Face embeddings database
 ├── reid_db.pkl             # Unknown identity database
 │
-├── encode_faces.py         # Dataset encoding script
-├── recognize.py            # Main real-time system
-├── reid_db.py              # ReID identity manager
-├── alert_async.py          # Email alert system
-├── config.py               # Configurations
+├── encode_faces.py         # Generate embeddings from dataset
+├── recognize.py            # Main real-time recognition system
+├── reid_db.py              # ReID identity management
+├── alert_async.py          # Email alert system (async)
+├── config.py               # Configuration file
+```
 
+---
 
-🔹 Installation
-1. Clone Repository
-git clone <repo-url>
-cd <repo>
-2. Install Dependencies
+## ⚙️ Installation
+
+### 1️⃣ Clone the Repository
+
+```bash
+git clone https://github.com/your-username/face-recognition-alert.git
+cd face-recognition-alert
+```
+
+### 2️⃣ Install Dependencies
+
+```bash
 pip install opencv-python numpy insightface
+```
 
+---
 
-🔹 Setup
-1. Prepare Dataset
+## 🧑‍💻 Setup
+
+### 📂 1. Prepare Dataset
+
+Organize known faces like this:
+
+```
 dataset/
  ├── person1/
  │    ├── img1.jpg
  │    ├── img2.jpg
  ├── person2/
-2. Encode Faces
+ │    ├── img1.jpg
+```
+
+---
+
+### 🧠 2. Encode Faces
+
+```bash
 python encode_faces.py
-3. Configure Email
+```
 
-Edit config.py:
+This will generate:
 
+```
+encodings.pkl
+```
+
+---
+
+### 📧 3. Configure Email Alerts
+
+Edit `config.py`:
+
+```python
 EMAIL = "your_email@gmail.com"
 PASSWORD = "your_app_password"
-TO_EMAIL = "receiver@gmail.com"
-⚠️ Use Google App Password, not your main password.
+TO_EMAIL = "receiver_email@gmail.com"
+```
 
+⚠️ **Important:**
 
-🔹 Run the System
+* Use a **Google App Password**, not your main password
+* Enable 2FA before generating the app password
+
+---
+
+## ▶️ Running the System
+
+```bash
 python recognize.py
+```
 
-      
-🔹 How It Works (Pipeline)
-Webcam feed captured
-Faces detected + embeddings extracted
-Compared with known encodings
-If unknown:
-Passed to ReID system
-Assigned persistent identity
-If unknown persists:
-Image + video recorded
-Email alert triggered
-Background maintenance:
-ReID DB saved periodically
-Similar identities merged
+Press **ESC** to exit.
+
+---
+
+## 🔄 How It Works
+
+1. Webcam captures live video
+2. Faces are detected using InsightFace
+3. Embeddings are extracted and normalized
+4. Compared against known encodings
+5. If unknown:
+
+   * Passed to ReID system
+   * Assigned persistent identity
+6. If unknown persists:
+
+   * Intruder alert triggered
+   * Image + video saved
+   * Email sent asynchronously
+7. Background tasks:
+
+   * ReID database saved periodically
+   * Similar identities merged
+
+---
+
+## ⚙️ Configuration Parameters
+
+Modify in `config.py`:
+
+| Parameter                 | Description                  |
+| ------------------------- | ---------------------------- |
+| `SIMILARITY_THRESHOLD`    | Recognition strictness       |
+| `ALERT_COOLDOWN`          | Minimum time between alerts  |
+| `UNKNOWN_FRAME_THRESHOLD` | Intruder trigger sensitivity |
+| `VIDEO_SOURCE`            | Webcam index                 |
+
+---
+
+## ⚡ Performance Notes
+
+* Optimized for **CPU execution** (`ctx_id = -1`)
+* Works on systems like **GTX 1650 Max-Q / no GPU**
+* Adjustable thresholds for speed vs accuracy
+
+---
+
+## 🧪 Tech Stack
+
+* **Python**
+* **OpenCV**
+* **InsightFace**
+* **NumPy**
+* **SMTP (Email Alerts)**
+
+---
+
+## 🔮 Future Improvements
+
+* GPU acceleration support
+* Web dashboard (live monitoring)
+* SMS / push notifications
+* Multi-camera support
+* Cloud deployment (AWS / GCP)
+
+---
 
 
-🔹 Configuration Parameters
-Parameter	Description
-SIMILARITY_THRESHOLD	Recognition strictness
-ALERT_COOLDOWN	Time between alerts
-UNKNOWN_TIME_THRESHOLD	Intruder trigger delay
-FRAME_SKIP	Performance optimization
-
-🔹 Performance Notes
-CPU-optimized (ctx_id = -1)
-Works on low GPU systems
-Adjustable thresholds for accuracy vs speed
-
-
-🔹 Future Improvements
-GPU acceleration support
-Web dashboard for monitoring
-SMS / push notifications
-Multi-camera support
-Face mask handling
